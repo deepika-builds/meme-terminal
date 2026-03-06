@@ -482,6 +482,9 @@ const obs = new IntersectionObserver(entries => {
 }, { threshold: 0.5 });
 obs.observe(document.querySelector('.terminal'));
 
+// Preload all sounds
+SOUNDS.forEach(s => { const a = new Audio(); a.preload = "auto"; a.src = "sounds/" + s.file; });
+
 if (REPO_URL) {
     document.getElementById('github-btn').href = REPO_URL;
     document.getElementById('github-footer').href = REPO_URL;
