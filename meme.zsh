@@ -47,6 +47,7 @@ MEME_DEFAULT_SOUNDS=(
 
 # ─── INTERNALS ──────────────────────────────────────────────
 typeset -g _MEME_LAST_CMD=""
+typeset -g _MEME_PLAYED_CMD_SOUND=false
 
 _meme_play() {
     local sound_file="$1"
@@ -94,11 +95,13 @@ _meme_get_cmd_key() {
 _meme_preexec() {
     local cmd="$1"
     _MEME_LAST_CMD="$cmd"
+    _MEME_PLAYED_CMD_SOUND=false
     [[ "$MEME_ENABLED" != true ]] && return
 
     local cmd_key=$(_meme_get_cmd_key "$cmd")
     if [[ -n "$cmd_key" ]]; then
         _meme_play "${MEME_CMD_SOUNDS[$cmd_key]}"
+        _MEME_PLAYED_CMD_SOUND=true
     fi
 }
 
@@ -113,11 +116,13 @@ _meme_precmd() {
 
     if [[ -n "$cmd_key" && -n "${MEME_CMD_COMPLETE_SOUNDS[$exit_key]}" ]]; then
         _meme_play "${MEME_CMD_COMPLETE_SOUNDS[$exit_key]}"
-    elif [[ $exit_code -ne 0 ]]; then
+    elif [[ $exit_code -ne 0 && "$_MEME_PLAYED_CMD_SOUND" != true ]]; then
+        # Only play error sound if no command-specific sound already played
         _meme_play "${MEME_DEFAULT_SOUNDS[error]}"
     fi
 
     _MEME_LAST_CMD=""
+    _MEME_PLAYED_CMD_SOUND=false
 }
 
 # Fires on "command not found" (typos)
