@@ -1,121 +1,129 @@
 # 🔊 meme-terminal
 
-Meme sounds for your terminal. Different sounds for different commands.
+Your terminal, but with meme sounds. Every `git push` hits different when there's a vine boom behind it.
+
+> *Inspired by that one viral video of someone adding the fahh sound to terminal errors. We took it too far.*
 
 ## Sound Map
 
-| Trigger         | Sound         | File needed            |
-|-----------------|---------------|------------------------|
-| Error (any cmd) | Fahh          | `sounds/fahh.mp3`     |
-| Loading (3s+)   | Romanceeee    | `sounds/romance.mp3`  |
-| `git pull`      | Rizz sound    | `sounds/rizz.mp3`     |
-| `git push`      | Vine boom     | `sounds/vine_boom.mp3`|
-| `git commit`    | Anime wow     | `sounds/anime_wow.mp3`|
-| Success         | (optional)    | `sounds/happy.mp3`    |
+| Command | Sound | Vibe |
+|---|---|---|
+| `git push` | Dun dun dunnnn | The dramatic push |
+| `git pull` | Among Us role reveal | What did your team do? |
+| `git commit` | Anime wow | You committed to something |
+| `npm run dev` | Ack | Let's gooo |
+| `npm install` | Dexter "ooh" | The waiting game |
+| `docker build` | Sad violin | You know it's gonna be a while |
+| `sudo` | Dun dun dunnnn | You're doing something serious |
+| `rm` | Bruh | Are you sure about that? |
+| `ssh` | Among Us role reveal | Entering sus territory |
+| Any error | Fahh | The classic |
+| Typos | Fahh | You had one job |
 
-## Setup
-
-### 1. Copy to your home directory
-
-```bash
-cp -r meme-terminal ~/meme-terminal
-```
-
-### 2. Add your sound files
-
-Drop `.mp3` files into `~/meme-terminal/sounds/`:
+## Install
 
 ```bash
-mkdir -p ~/meme-terminal/sounds
-
-# Then add your files:
-# ~/meme-terminal/sounds/fahh.mp3
-# ~/meme-terminal/sounds/romance.mp3
-# ~/meme-terminal/sounds/rizz.mp3
-# ~/meme-terminal/sounds/vine_boom.mp3
-# ~/meme-terminal/sounds/anime_wow.mp3
+git clone https://github.com/deepika-builds/meme-terminal.git
+cd meme-terminal
+./install.sh
 ```
 
-**Where to get the sounds:** Download from YouTube/TikTok using any converter, or grab from myinstants.com, voicy.network, etc. Trim to 1-3 seconds for best experience (loading sound can be longer since it loops).
-
-### 3. Source in your .zshrc
-
-```bash
-echo 'source ~/meme-terminal/meme.zsh' >> ~/.zshrc
-source ~/.zshrc
-```
+Restart your terminal. That's it — all 9 sounds are included and ready to go.
 
 ## Commands
 
-| Command | What it does |
-|---------|-------------|
-| `meme-toggle` | Turn sounds on/off |
-| `meme-test <file>` | Preview a sound file |
-| `meme-status` | Show current config and check which sounds are found |
+```bash
+meme-status          # See your config
+meme-test fahh.mp3   # Preview a sound
+meme-toggle          # Turn sounds on/off
+```
 
-## Configuration
+## Customize
 
-Edit `meme.zsh` to customize:
+### Change which sound plays for which command
 
-### Add more command sounds
+Edit `~/meme-terminal/meme.zsh` — find the `MEME_CMD_SOUNDS` block and swap sounds around:
 
 ```zsh
 MEME_CMD_SOUNDS=(
-    git_pull      "rizz.mp3"
-    git_push      "vine_boom.mp3"
+    git_push      "dun_dun_dun.mp3"
+    git_pull      "among_us.mp3"
     git_commit    "anime_wow.mp3"
-    npm_install   "bruh.mp3"           # ← add your own
-    docker_build  "emotional_damage.mp3" # ← add your own
-    cargo_build   "taco_bell.mp3"      # ← add your own
+    npm_run       "ack.mp3"
+    npm_install   "dexter.mp3"
+    docker_build  "sad_violin.mp3"
+    sudo          "dun_dun_dun.mp3"
+    rm            "bruh.mp3"
+    ssh           "among_us.mp3"
 )
 ```
 
-### Per-command completion sounds
+### Add your own sounds
+
+Drop any `.mp3` into `~/meme-terminal/sounds/` and use the filename in the config above.
+
+### Add more commands
+
+Just add a new line to `MEME_CMD_SOUNDS`. Use underscores for multi-word commands:
+
+```zsh
+    cargo_build   "some_sound.mp3"
+    python        "another_sound.mp3"
+    yarn_install  "dexter.mp3"
+```
+
+### Per-command success/error sounds
 
 ```zsh
 MEME_CMD_COMPLETE_SOUNDS=(
-    git_push_0   "sheesh.mp3"          # git push success
-    git_push_1   "windows_xp_error.mp3" # git push error
+    git_push_0    "success_sound.mp3"   # git push succeeded
+    git_push_1    "fail_sound.mp3"      # git push failed
 )
 ```
 
-### Adjust loading delay
-
-```zsh
-MEME_LOADING_DELAY=3  # seconds before loading sound starts
-```
-
-### Adjust volume (macOS only)
+### Volume (macOS)
 
 ```zsh
 MEME_VOLUME=0.5  # 0.0 to 1.0
 ```
 
+## Included sounds
+
+| File | Sound |
+|---|---|
+| `fahh.mp3` | Fahh |
+| `bruh.mp3` | Bruh |
+| `anime_wow.mp3` | Anime wow |
+| `among_us.mp3` | Among Us role reveal |
+| `ack.mp3` | Ack |
+| `dexter.mp3` | Dexter meme |
+| `sad_violin.mp3` | Sad violin |
+| `dun_dun_dun.mp3` | Dun dun dunnnn |
+| `punch.mp3` | Punch sound |
+
 ## How it works
 
-1. **preexec hook** — fires when you hit Enter on a command
-   - Checks if the command matches a specific sound → plays it
-   - Starts a background timer; if command runs longer than `MEME_LOADING_DELAY`, loops the loading sound
-2. **precmd hook** — fires when the command finishes
-   - Kills any loading sounds
-   - Checks exit code → plays error or success sound
+Two zsh hooks. That's it.
 
-## Troubleshooting
+**preexec** fires when you hit Enter — matches your command against the sound map and plays the sound. **precmd** fires when the command finishes — checks exit code, non-zero means error sound. Plus a `command_not_found_handler` for when you fat-finger a command.
 
-**No sound playing?**
-- Run `meme-status` to check if sound files are found
-- Run `meme-test fahh.mp3` to test a specific file
-- Check that `afplay` works: `afplay ~/meme-terminal/sounds/fahh.mp3`
+## Uninstall
 
-**Sounds overlap weirdly?**
-- Trim your sound files to 1-2 seconds
-- Increase `MEME_LOADING_DELAY` if loading sound kicks in too early
+```bash
+cd meme-terminal
+./uninstall.sh
+```
 
-**Want to disable temporarily?**
-- Run `meme-toggle` or set `MEME_ENABLED=false`
+## Requirements
 
-## Platform support
+- **zsh** (default on macOS since Catalina)
+- **macOS**: Works out of the box via `afplay`
+- **Linux**: Needs `pulseaudio` (paplay) or `sox` (play)
 
-- **macOS:** Works out of the box via `afplay`
-- **Linux:** Needs `pulseaudio` (paplay) or `sox` (play) installed
-- **Shell:** Requires `zsh` (default on macOS since Catalina)
+## Contribute
+
+PRs welcome. Drop your `.mp3` in `sounds/`, keep it under 500KB, keep it short (1-3 seconds).
+
+## License
+
+MIT
