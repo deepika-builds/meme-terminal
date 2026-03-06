@@ -5,135 +5,342 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>meme-terminal — meme sounds for your terminal</title>
     <meta name="description" content="Your terminal, but with meme sounds. Every git push hits different when there's a vine boom behind it.">
-    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Satoshi:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
-            --bg: #0a0a0a; --surface: #141414; --surface-2: #1a1a1a;
-            --border: #2a2a2a; --border-hover: #3a3a3a;
-            --text: #e8e8e8; --text-dim: #888;
-            --accent: #ff4d00; --accent-glow: rgba(255, 77, 0, 0.15);
-            --green: #22c55e;
-            --mono: 'Space Mono', monospace;
-            --sans: 'Satoshi', -apple-system, sans-serif;
+            --bg: #0f0f23;
+            --surface: #1a1a2e;
+            --surface-2: #16213e;
+            --border: #2a2a4a;
+            --border-hover: #4a4a6a;
+            --text: #e0e0ff;
+            --text-dim: #7a7a9a;
+            --accent: #ff6b35;
+            --accent-2: #ffd700;
+            --green: #39ff14;
+            --red: #ff3131;
+            --cyan: #00ffff;
+            --pixel: 'Press Start 2P', monospace;
+            --body: 'VT323', monospace;
         }
-        body { background: var(--bg); color: var(--text); font-family: var(--sans); line-height: 1.6; overflow-x: hidden; }
-        body::before { content: ''; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E"); pointer-events: none; z-index: 1000; }
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--body);
+            font-size: 1.2rem;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        /* Scanline overlay */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0,0,0,0.06) 0px,
+                rgba(0,0,0,0.06) 1px,
+                transparent 1px,
+                transparent 3px
+            );
+            pointer-events: none;
+            z-index: 1000;
+        }
 
-        .hero { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 2rem; position: relative; }
-        .hero::after { content: ''; position: absolute; top: 20%; left: 50%; transform: translateX(-50%); width: 600px; height: 600px; background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%); pointer-events: none; }
-        .badge { font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); border: 1px solid var(--accent); padding: 0.4rem 1rem; border-radius: 100px; margin-bottom: 2rem; position: relative; z-index: 1; }
-        h1 { font-family: var(--sans); font-weight: 900; font-size: clamp(3rem, 8vw, 7rem); line-height: 1; text-align: center; letter-spacing: -0.03em; position: relative; z-index: 1; }
-        h1 span { background: linear-gradient(135deg, var(--accent) 0%, #ff8c00 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-        .tagline { font-size: clamp(1rem, 2.5vw, 1.35rem); color: var(--text-dim); text-align: center; max-width: 500px; margin-top: 1.5rem; position: relative; z-index: 1; }
-        .tagline code { font-family: var(--mono); color: var(--text); }
-        .hero-cta { display: flex; gap: 1rem; margin-top: 2.5rem; position: relative; z-index: 1; flex-wrap: wrap; justify-content: center; }
+        /* ── PIXEL BORDER UTIL ── */
+        .pixel-box {
+            background: var(--surface);
+            border: 3px solid var(--border);
+            box-shadow:
+                4px 4px 0 var(--border),
+                inset 0 0 0 1px rgba(255,255,255,0.03);
+        }
 
-        .btn { font-family: var(--mono); font-size: 0.85rem; padding: 0.8rem 1.8rem; border-radius: 8px; border: none; cursor: pointer; text-decoration: none; transition: all 0.2s; display: inline-flex; align-items: center; gap: 0.5rem; }
-        .btn-primary { background: var(--accent); color: white; }
-        .btn-primary:hover { background: #e64500; transform: translateY(-1px); }
-        .btn-secondary { background: var(--surface); color: var(--text); border: 1px solid var(--border); }
-        .btn-secondary:hover { border-color: var(--border-hover); transform: translateY(-1px); }
+        /* ── HERO ── */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            position: relative;
+        }
 
-        .section-heading { font-weight: 900; font-size: clamp(2rem, 4vw, 3rem); text-align: center; letter-spacing: -0.02em; margin-bottom: 1rem; }
-        .section-sub { text-align: center; color: var(--text-dim); margin-bottom: 3rem; font-size: 1.05rem; }
+        .badge {
+            font-family: var(--pixel);
+            font-size: 0.55rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--accent-2);
+            border: 2px solid var(--accent-2);
+            padding: 0.5rem 1.2rem;
+            margin-bottom: 2rem;
+            position: relative;
+            z-index: 1;
+            box-shadow: 3px 3px 0 rgba(255,215,0,0.3);
+        }
 
-        /* Terminal */
-        .demo-section { padding: 4rem 2rem 6rem; display: flex; justify-content: center; }
-        .terminal { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; width: 100%; max-width: 680px; overflow: hidden; box-shadow: 0 25px 60px rgba(0,0,0,0.4); }
-        .terminal-bar { display: flex; align-items: center; gap: 8px; padding: 14px 18px; background: var(--surface-2); border-bottom: 1px solid var(--border); }
-        .terminal-dot { width: 12px; height: 12px; border-radius: 50%; }
-        .terminal-dot.red { background: #ff5f57; } .terminal-dot.yellow { background: #febc2e; } .terminal-dot.green { background: #28c840; }
-        .terminal-title { font-family: var(--mono); font-size: 0.75rem; color: var(--text-dim); margin-left: 8px; }
-        .terminal-body { padding: 1.5rem; font-family: var(--mono); font-size: 0.85rem; line-height: 2; min-height: 280px; }
-        .terminal-line { opacity: 0; animation: typeLine 0.3s ease forwards; }
-        .prompt { color: var(--green); } .cmd { color: var(--text); } .output { color: var(--text-dim); } .error { color: #ef4444; }
-        .sound-tag { display: inline-block; font-size: 0.7rem; padding: 2px 8px; border-radius: 4px; margin-left: 8px; animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; vertical-align: middle; }
-        .sound-tag.orange { background: var(--accent-glow); color: var(--accent); border: 1px solid rgba(255,77,0,0.3); }
-        .sound-tag.red { background: rgba(239,68,68,0.15); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); }
-        @keyframes typeLine { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+        h1 {
+            font-family: var(--pixel);
+            font-size: clamp(1.5rem, 5vw, 3.5rem);
+            line-height: 1.3;
+            text-align: center;
+            color: var(--accent);
+            position: relative;
+            z-index: 1;
+            text-shadow: 3px 3px 0 rgba(255,107,53,0.3), 0 0 30px rgba(255,107,53,0.15);
+        }
+
+        .tagline {
+            font-family: var(--body);
+            font-size: 1.4rem;
+            color: var(--text-dim);
+            text-align: center;
+            max-width: 550px;
+            margin-top: 1.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .tagline code {
+            color: var(--green);
+            font-family: var(--body);
+        }
+
+        .hero-cta {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2.5rem;
+            position: relative;
+            z-index: 1;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn {
+            font-family: var(--pixel);
+            font-size: 0.6rem;
+            padding: 0.9rem 1.6rem;
+            border: 2px solid;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.1s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .btn:active { transform: translate(2px, 2px); box-shadow: none !important; }
+
+        .btn-primary {
+            background: var(--accent);
+            color: #fff;
+            border-color: #cc5020;
+            box-shadow: 3px 3px 0 #cc5020;
+        }
+        .btn-primary:hover { background: #ff7b45; }
+
+        .btn-secondary {
+            background: var(--surface);
+            color: var(--text);
+            border-color: var(--border);
+            box-shadow: 3px 3px 0 var(--border);
+        }
+        .btn-secondary:hover { background: var(--surface-2); border-color: var(--border-hover); }
+
+        .section-heading {
+            font-family: var(--pixel);
+            font-size: clamp(0.9rem, 2.5vw, 1.4rem);
+            text-align: center;
+            color: var(--accent-2);
+            margin-bottom: 0.75rem;
+            text-shadow: 2px 2px 0 rgba(255,215,0,0.2);
+        }
+        .section-sub {
+            text-align: center;
+            color: var(--text-dim);
+            margin-bottom: 3rem;
+            font-size: 1.2rem;
+            font-family: var(--body);
+        }
+
+        /* ── TERMINAL DEMO ── */
+        .demo-section { padding: 3rem 2rem 5rem; display: flex; justify-content: center; }
+        .terminal {
+            background: #0c0c1d;
+            border: 3px solid var(--green);
+            width: 100%;
+            max-width: 680px;
+            overflow: hidden;
+            box-shadow: 4px 4px 0 rgba(57,255,20,0.2), 0 0 40px rgba(57,255,20,0.05);
+        }
+        .terminal-bar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 14px;
+            background: #111128;
+            border-bottom: 2px solid var(--green);
+        }
+        .terminal-dot { width: 10px; height: 10px; }
+        .terminal-dot.red { background: var(--red); } .terminal-dot.yellow { background: var(--accent-2); } .terminal-dot.green { background: var(--green); }
+        .terminal-title { font-family: var(--pixel); font-size: 0.5rem; color: var(--green); margin-left: 10px; }
+        .terminal-body { padding: 1.5rem; font-family: var(--body); font-size: 1.1rem; line-height: 2; min-height: 260px; }
+        .terminal-line { opacity: 0; animation: typeLine 0.2s ease forwards; }
+        .prompt { color: var(--green); } .cmd { color: var(--text); } .output { color: var(--text-dim); } .error { color: var(--red); }
+        .sound-tag { display: inline-block; font-family: var(--pixel); font-size: 0.5rem; padding: 3px 8px; margin-left: 8px; vertical-align: middle; animation: popIn 0.2s ease forwards; }
+        .sound-tag.orange { background: rgba(255,107,53,0.2); color: var(--accent); border: 1px solid rgba(255,107,53,0.4); }
+        .sound-tag.red { background: rgba(255,49,49,0.2); color: var(--red); border: 1px solid rgba(255,49,49,0.4); }
+        @keyframes typeLine { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes popIn { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
 
-        /* Sound Grid */
-        .map-section { padding: 6rem 2rem; }
-        .sound-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; max-width: 900px; margin: 0 auto; }
-        .sound-card { background: var(--surface); padding: 1.25rem 1.5rem; display: flex; justify-content: space-between; align-items: center; transition: background 0.15s; cursor: pointer; user-select: none; }
-        .sound-card:hover { background: var(--surface-2); }
-        .sound-card:active { background: #222; }
-        .sound-cmd { font-family: var(--mono); font-size: 0.85rem; }
-        .sound-name { font-size: 0.8rem; color: var(--text-dim); display: flex; align-items: center; gap: 0.5rem; }
-        .play-btn { width: 32px; height: 32px; border-radius: 50%; background: var(--surface-2); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 0.7rem; transition: all 0.15s; flex-shrink: 0; color: var(--text-dim); }
-        .sound-card:hover .play-btn { background: var(--accent); border-color: var(--accent); color: white; }
-        .play-btn.playing { background: var(--accent) !important; border-color: var(--accent) !important; color: white !important; animation: pulse 0.4s ease; }
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
+        /* ── SOUND GRID ── */
+        .map-section { padding: 5rem 2rem; }
+        .sound-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 3px;
+            max-width: 920px;
+            margin: 0 auto;
+        }
+        .sound-card {
+            background: var(--surface);
+            border: 2px solid var(--border);
+            padding: 1rem 1.25rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.1s;
+        }
+        .sound-card:hover { background: var(--surface-2); border-color: var(--accent); }
+        .sound-card:active { transform: translate(1px, 1px); }
+        .sound-card.flash { background: rgba(255,107,53,0.15); border-color: var(--accent); }
+        .sound-cmd { font-family: var(--pixel); font-size: 0.55rem; color: var(--green); }
+        .sound-name { font-size: 1.1rem; color: var(--text-dim); display: flex; align-items: center; gap: 0.5rem; }
+        .play-btn {
+            width: 28px; height: 28px;
+            border: 2px solid var(--border);
+            background: var(--surface-2);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.6rem; color: var(--text-dim);
+            transition: all 0.1s;
+        }
+        .sound-card:hover .play-btn { border-color: var(--accent); color: var(--accent); }
+        .play-btn.playing { background: var(--accent); border-color: var(--accent); color: #fff; }
 
-        /* Configurator */
-        .config-section { padding: 6rem 2rem; }
-        .configurator { max-width: 700px; margin: 0 auto; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
-        .config-row { display: flex; align-items: center; justify-content: space-between; padding: 1rem 1.5rem; border-bottom: 1px solid var(--border); gap: 1rem; }
+        /* ── CONFIGURATOR ── */
+        .config-section { padding: 5rem 2rem; }
+        .configurator { max-width: 700px; margin: 0 auto; border: 3px solid var(--border); box-shadow: 4px 4px 0 var(--border); background: var(--surface); }
+        .config-row { display: flex; align-items: center; justify-content: space-between; padding: 0.85rem 1.25rem; border-bottom: 2px solid var(--border); gap: 1rem; }
         .config-row:last-of-type { border-bottom: none; }
-        .config-cmd { font-family: var(--mono); font-size: 0.85rem; min-width: 130px; }
+        .config-cmd { font-family: var(--pixel); font-size: 0.5rem; min-width: 120px; color: var(--cyan); }
         .config-right { display: flex; align-items: center; gap: 0.75rem; }
-        .config-select { font-family: var(--mono); font-size: 0.8rem; background: var(--surface-2); color: var(--text); border: 1px solid var(--border); border-radius: 6px; padding: 0.5rem 2rem 0.5rem 0.75rem; cursor: pointer; min-width: 160px; appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; }
-        .config-select:hover { border-color: var(--border-hover); }
+        .config-select {
+            font-family: var(--body); font-size: 1.1rem;
+            background: var(--bg); color: var(--text);
+            border: 2px solid var(--border); padding: 0.4rem 2rem 0.4rem 0.6rem;
+            cursor: pointer; min-width: 150px;
+            appearance: none; -webkit-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%237a7a9a' stroke-width='3'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+            background-repeat: no-repeat; background-position: right 8px center;
+        }
         .config-select:focus { outline: none; border-color: var(--accent); }
-        .config-play { width: 32px; height: 32px; border-radius: 50%; background: var(--surface-2); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.15s; flex-shrink: 0; font-size: 0.7rem; color: var(--text-dim); }
-        .config-play:hover { background: var(--accent); border-color: var(--accent); color: white; }
-        .config-play.playing { background: var(--accent); border-color: var(--accent); color: white; animation: pulse 0.4s ease; }
-        .config-actions { padding: 1.5rem; display: flex; justify-content: center; background: var(--surface-2); border-top: 1px solid var(--border); }
-        .btn-generate { font-family: var(--mono); font-size: 0.85rem; padding: 0.75rem 2rem; background: var(--accent); color: white; border: none; border-radius: 8px; cursor: pointer; transition: all 0.2s; }
-        .btn-generate:hover { background: #e64500; transform: translateY(-1px); }
+        .config-play {
+            width: 28px; height: 28px;
+            border: 2px solid var(--border); background: var(--bg);
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; font-size: 0.6rem; color: var(--text-dim);
+            transition: all 0.1s;
+        }
+        .config-play:hover { border-color: var(--accent); color: var(--accent); }
+        .config-play.playing { background: var(--accent); border-color: var(--accent); color: #fff; }
+        .config-actions { padding: 1.25rem; display: flex; justify-content: center; background: var(--surface-2); border-top: 2px solid var(--border); }
 
-        /* Install */
-        .install-section { padding: 6rem 2rem; }
-        .install-box { max-width: 640px; margin: 0 auto; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
-        .install-step { padding: 1.5rem; border-bottom: 1px solid var(--border); }
+        /* ── INSTALL ── */
+        .install-section { padding: 5rem 2rem; }
+        .install-box { max-width: 640px; margin: 0 auto; border: 3px solid var(--border); box-shadow: 4px 4px 0 var(--border); background: var(--surface); }
+        .install-step { padding: 1.25rem; border-bottom: 2px solid var(--border); }
         .install-step:last-child { border-bottom: none; }
-        .install-step-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 0.75rem; }
-        .step-num { width: 28px; height: 28px; border-radius: 50%; background: var(--accent-glow); border: 1px solid rgba(255,77,0,0.3); display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 0.75rem; font-weight: 700; flex-shrink: 0; color: var(--accent); }
-        .step-title { font-weight: 700; font-size: 1rem; }
-        .step-desc { color: var(--text-dim); font-size: 0.9rem; margin-bottom: 0.75rem; padding-left: 2.75rem; }
-        .code-block { font-family: var(--mono); font-size: 0.8rem; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.25rem; margin-left: 2.75rem; position: relative; overflow-x: auto; line-height: 1.7; }
-        .copy-btn { position: absolute; top: 8px; right: 8px; font-family: var(--mono); font-size: 0.65rem; padding: 4px 10px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 4px; color: var(--text-dim); cursor: pointer; transition: all 0.15s; }
-        .copy-btn:hover { color: var(--text); border-color: var(--border-hover); }
+        .install-step-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 0.5rem; }
+        .step-num {
+            width: 26px; height: 26px;
+            border: 2px solid var(--accent);
+            display: flex; align-items: center; justify-content: center;
+            font-family: var(--pixel); font-size: 0.5rem; flex-shrink: 0;
+            color: var(--accent); background: rgba(255,107,53,0.1);
+        }
+        .step-title { font-family: var(--pixel); font-size: 0.6rem; color: var(--text); }
+        .step-desc { color: var(--text-dim); font-size: 1.1rem; margin-bottom: 0.6rem; padding-left: 2.5rem; }
+        .code-block {
+            font-family: var(--body); font-size: 1.1rem;
+            background: var(--bg); border: 2px solid var(--border);
+            padding: 0.8rem 1rem; margin-left: 2.5rem;
+            position: relative; overflow-x: auto;
+            color: var(--green);
+        }
+        .copy-btn {
+            position: absolute; top: 6px; right: 6px;
+            font-family: var(--pixel); font-size: 0.4rem;
+            padding: 4px 8px; background: var(--surface);
+            border: 1px solid var(--border); color: var(--text-dim);
+            cursor: pointer; text-transform: uppercase;
+        }
+        .copy-btn:hover { color: var(--text); border-color: var(--accent); }
+        .customize-note { text-align: center; color: var(--text-dim); margin-top: 2rem; font-size: 1.1rem; }
+        .customize-note a { color: var(--accent); text-decoration: none; }
 
-        /* Modal */
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.75); z-index: 999; justify-content: center; align-items: center; padding: 2rem; backdrop-filter: blur(4px); }
+        /* ── MODAL ── */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 999; justify-content: center; align-items: center; padding: 2rem; }
         .modal-overlay.active { display: flex; }
-        .modal { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; width: 100%; max-width: 640px; max-height: 80vh; overflow-y: auto; }
-        .modal-header { padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-        .modal-header h3 { font-family: var(--mono); font-size: 0.9rem; }
-        .modal-close { background: none; border: none; color: var(--text-dim); font-size: 1.5rem; cursor: pointer; line-height: 1; }
-        .modal-body { padding: 1.5rem; }
-        .modal-body pre { font-family: var(--mono); font-size: 0.78rem; line-height: 1.7; white-space: pre-wrap; color: var(--text-dim); }
-        .modal-footer { padding: 1rem 1.5rem; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 0.75rem; }
+        .modal { background: var(--surface); border: 3px solid var(--border); box-shadow: 6px 6px 0 var(--border); width: 100%; max-width: 640px; max-height: 80vh; overflow-y: auto; }
+        .modal-header { padding: 1rem 1.25rem; border-bottom: 2px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .modal-header h3 { font-family: var(--pixel); font-size: 0.6rem; color: var(--accent-2); }
+        .modal-close { background: none; border: none; color: var(--text-dim); font-family: var(--body); font-size: 1.8rem; cursor: pointer; }
+        .modal-body { padding: 1.25rem; }
+        .modal-body pre { font-family: var(--body); font-size: 1rem; line-height: 1.6; white-space: pre-wrap; color: var(--green); }
+        .modal-footer { padding: 1rem 1.25rem; border-top: 2px solid var(--border); display: flex; justify-content: flex-end; gap: 0.75rem; }
 
-        footer { padding: 3rem 2rem; text-align: center; color: var(--text-dim); font-size: 0.85rem; border-top: 1px solid var(--border); }
+        footer { padding: 2.5rem 2rem; text-align: center; color: var(--text-dim); font-size: 1rem; border-top: 2px solid var(--border); }
         footer a { color: var(--accent); text-decoration: none; }
 
-        .toast { position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem 1.25rem; font-family: var(--mono); font-size: 0.8rem; color: var(--text); z-index: 1001; transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+        .toast { position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--surface); border: 2px solid var(--accent); padding: 0.6rem 1.2rem; font-family: var(--pixel); font-size: 0.5rem; color: var(--accent); z-index: 1001; transition: transform 0.2s; box-shadow: 3px 3px 0 rgba(255,107,53,0.3); }
         .toast.show { transform: translateX(-50%) translateY(0); }
 
+        /* ── LOADING INDICATOR ── */
+        .loading-bar {
+            position: fixed; top: 0; left: 0; height: 3px;
+            background: var(--accent); z-index: 1001;
+            transition: width 0.3s; width: 0;
+        }
+        .loading-bar.active { width: 100%; }
+
         @media (max-width: 600px) {
-            .config-row { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
+            .config-row { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
             .config-right { width: 100%; }
             .config-select { flex: 1; }
             .sound-grid { grid-template-columns: 1fr; }
-            .code-block { margin-left: 0; margin-top: 0.5rem; }
+            .code-block { margin-left: 0; margin-top: 0.4rem; }
             .step-desc { padding-left: 0; }
         }
     </style>
 </head>
 <body>
 
+<div class="loading-bar" id="loadingBar"></div>
+
 <section class="hero">
-    <div class="badge">zsh plugin · open source</div>
-    <h1><span>meme</span>-terminal</h1>
+    <div class="badge">[ zsh plugin // open source ]</div>
+    <h1>meme-terminal</h1>
     <p class="tagline">Your terminal, but with meme sounds. Every <code>git push</code> hits different when there's a vine boom behind it.</p>
     <div class="hero-cta">
-        <a href="#install" class="btn btn-primary">Install</a>
-        <a href="#sounds" class="btn btn-secondary">Listen</a>
-        <a href="#" class="btn btn-secondary" id="github-btn" target="_blank">GitHub ↗</a>
+        <a href="#install" class="btn btn-primary">install</a>
+        <a href="#sounds" class="btn btn-secondary">listen</a>
+        <a href="#" class="btn btn-secondary" id="github-btn" target="_blank">github</a>
     </div>
 </section>
 
@@ -150,78 +357,76 @@
 </section>
 
 <section class="map-section" id="sounds">
-    <h2 class="section-heading">The Sound Map</h2>
-    <p class="section-sub">Click any row to hear it.</p>
+    <h2 class="section-heading">// SOUND MAP</h2>
+    <p class="section-sub">Click to play. Volume up.</p>
     <div class="sound-grid" id="soundGrid"></div>
 </section>
 
 <section class="config-section" id="configurator">
-    <h2 class="section-heading">Configure</h2>
-    <p class="section-sub">Want different sounds? Customize here, then hit Generate.</p>
+    <h2 class="section-heading">// CONFIGURE</h2>
+    <p class="section-sub">Swap sounds around. Hit generate.</p>
     <div class="configurator">
         <div id="configRows"></div>
         <div class="config-actions">
-            <button class="btn-generate" onclick="generateConfig()">Generate Config</button>
+            <button class="btn btn-primary" onclick="generateConfig()">generate config</button>
         </div>
     </div>
 </section>
 
 <section class="install-section" id="install">
-    <h2 class="section-heading">Install</h2>
-    <p class="section-sub">Open your terminal app and paste these one at a time.</p>
+    <h2 class="section-heading">// INSTALL</h2>
+    <p class="section-sub">Open terminal. Paste these. Done.</p>
     <div class="install-box">
         <div class="install-step">
             <div class="install-step-header">
                 <div class="step-num">1</div>
-                <div class="step-title">Download it</div>
+                <div class="step-title">download</div>
             </div>
-            <p class="step-desc">This downloads the meme-terminal folder (with all sounds) to your computer.</p>
-            <div class="code-block">git clone &lt;your-repo-url&gt;<button class="copy-btn" onclick="copyText(this)">copy</button></div>
+            <p class="step-desc">Grabs the repo with all 9 sounds included.</p>
+            <div class="code-block">git clone https://github.com/deepika-builds/meme-terminal.git<button class="copy-btn" onclick="copyText(this)">copy</button></div>
         </div>
         <div class="install-step">
             <div class="install-step-header">
                 <div class="step-num">2</div>
-                <div class="step-title">Install it</div>
+                <div class="step-title">install</div>
             </div>
-            <p class="step-desc">This copies the sounds into your home folder and tells your terminal to load meme-terminal every time it opens.</p>
+            <p class="step-desc">Copies sounds to your home folder and hooks into your shell.</p>
             <div class="code-block">cd meme-terminal &amp;&amp; ./install.sh<button class="copy-btn" onclick="copyText(this)">copy</button></div>
         </div>
         <div class="install-step">
             <div class="install-step-header">
                 <div class="step-num">3</div>
-                <div class="step-title">Restart your terminal</div>
+                <div class="step-title">restart terminal</div>
             </div>
-            <p class="step-desc">Close your terminal completely (Cmd+Q on Mac) and reopen it. Or run this:</p>
+            <p class="step-desc">Close terminal (Cmd+Q) and reopen. Or run:</p>
             <div class="code-block">source ~/.zshrc<button class="copy-btn" onclick="copyText(this)">copy</button></div>
         </div>
         <div class="install-step" style="background: var(--surface-2);">
             <div class="install-step-header">
-                <div class="step-num" style="background: rgba(34,197,94,0.15); border-color: rgba(34,197,94,0.3); color: var(--green);">✓</div>
-                <div class="step-title">Test it</div>
+                <div class="step-num" style="border-color: var(--green); color: var(--green); background: rgba(57,255,20,0.1);">✓</div>
+                <div class="step-title">test</div>
             </div>
-            <p class="step-desc">Hear a sound? You're done. Type garbage to hear the fahh.</p>
+            <p class="step-desc">Hear it? Type garbage for the fahh.</p>
             <div class="code-block">meme-test fahh.mp3<button class="copy-btn" onclick="copyText(this)">copy</button></div>
         </div>
     </div>
-    <p style="text-align:center; color: var(--text-dim); margin-top: 2rem; font-size: 0.9rem;">
-        Want custom sounds? Use the <a href="#configurator" style="color: var(--accent); text-decoration: none;">configurator above</a> to generate your config, then paste it into <code style="font-family: var(--mono); font-size: 0.8rem;">~/meme-terminal/meme.zsh</code>
-    </p>
+    <p class="customize-note">Want different sounds? <a href="#configurator">Configure above</a>, then paste into ~/meme-terminal/meme.zsh</p>
 </section>
 
 <footer>
-    <p>Made for fun. <a href="#" id="github-footer" target="_blank">Star on GitHub</a> if this made you smile.</p>
+    <p>Made for the lols. <a href="#" id="github-footer" target="_blank">Star on GitHub</a> if this made you exhale.</p>
 </footer>
 
 <div class="modal-overlay" id="configModal">
     <div class="modal">
         <div class="modal-header">
-            <h3>Your config</h3>
-            <button class="modal-close" onclick="closeModal()">&times;</button>
+            <h3>your config</h3>
+            <button class="modal-close" onclick="closeModal()">x</button>
         </div>
         <div class="modal-body"><pre id="configOutput"></pre></div>
         <div class="modal-footer">
-            <button class="btn btn-secondary" onclick="copyConfig()">Copy</button>
-            <button class="btn btn-primary" onclick="downloadConfig()">Download</button>
+            <button class="btn btn-secondary" onclick="copyConfig()">copy</button>
+            <button class="btn btn-primary" onclick="downloadConfig()">download</button>
         </div>
     </div>
 </div>
@@ -229,8 +434,7 @@
 <div class="toast" id="toast"></div>
 
 <script>
-// ─── CONFIG ───
-const REPO_URL = 'https://github.com/deepika-builds/meme-terminal'; // SET YOUR REPO URL: 'https://github.com/you/meme-terminal'
+const REPO_URL = 'https://github.com/deepika-builds/meme-terminal';
 
 const SOUNDS = [
     { id: 'fahh', name: 'Fahh', file: 'fahh.mp3' },
@@ -254,60 +458,84 @@ const COMMANDS = [
     { cmd: 'sudo', key: 'sudo', default: 'dun_dun_dun' },
     { cmd: 'rm', key: 'rm', default: 'bruh' },
     { cmd: 'ssh', key: 'ssh', default: 'among_us' },
-    { cmd: 'error (any)', key: '_error', default: 'fahh' },
+    { cmd: 'error', key: '_error', default: 'fahh' },
     { cmd: 'typo', key: '_not_found', default: 'fahh' },
 ];
 
-// ─── AUDIO ───
-let currentAudio = null;
-let audioUnlocked = false;
+// ─── WEB AUDIO API — reliable playback ───
+let audioCtx = null;
+const audioBuffers = {};
+let loadedCount = 0;
+let currentSource = null;
 
-// Unlock audio on ANY first click/touch on the page
-function unlockAudio() {
-    if (audioUnlocked) return;
-    const silent = new Audio('data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=');
-    silent.play().then(() => {
-        audioUnlocked = true;
-        silent.pause();
-    }).catch(() => {});
+function initAudio() {
+    if (audioCtx) return;
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    // Resume if suspended (Chrome autoplay policy)
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    loadAllSounds();
 }
-document.addEventListener('click', unlockAudio, { once: false });
-document.addEventListener('touchstart', unlockAudio, { once: false });
+
+async function loadAllSounds() {
+    const bar = document.getElementById('loadingBar');
+    bar.style.width = '10%';
+
+    for (let i = 0; i < SOUNDS.length; i++) {
+        const s = SOUNDS[i];
+        try {
+            const resp = await fetch('sounds/' + s.file);
+            const arrayBuf = await resp.arrayBuffer();
+            audioBuffers[s.id] = await audioCtx.decodeAudioData(arrayBuf);
+        } catch (e) {
+            console.warn('Failed to load:', s.file, e);
+        }
+        loadedCount++;
+        bar.style.width = (10 + (loadedCount / SOUNDS.length) * 90) + '%';
+    }
+
+    setTimeout(() => { bar.style.width = '100%'; setTimeout(() => { bar.style.opacity = '0'; }, 300); }, 200);
+}
 
 function playSound(soundId, triggerEl) {
-    // Stop anything playing
-    if (currentAudio) {
-        currentAudio.pause();
-        currentAudio.currentTime = 0;
-        currentAudio = null;
+    // Init on first interaction
+    if (!audioCtx) initAudio();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+
+    // Stop current
+    if (currentSource) {
+        try { currentSource.stop(); } catch(e) {}
+        currentSource = null;
     }
     document.querySelectorAll('.playing').forEach(el => el.classList.remove('playing'));
 
-    const sound = SOUNDS.find(s => s.id === soundId);
-    if (!sound) return;
+    const buffer = audioBuffers[soundId];
+    if (!buffer) {
+        // Not loaded yet — try fetch fallback
+        const sound = SOUNDS.find(s => s.id === soundId);
+        if (sound) {
+            const audio = new Audio('sounds/' + sound.file);
+            audio.play().catch(() => showToast('Loading sounds...'));
+        }
+        return;
+    }
 
-    const audio = new Audio('sounds/' + sound.file);
-    audio.volume = 1;
+    const source = audioCtx.createBufferSource();
+    source.buffer = buffer;
+    source.connect(audioCtx.destination);
+    source.start(0);
+    currentSource = source;
 
-    audio.play().then(() => {
-        currentAudio = audio;
-        if (triggerEl) triggerEl.classList.add('playing');
-    }).catch(() => {
-        // Retry once after a small delay (audio context may need a moment)
-        setTimeout(() => {
-            audio.play().then(() => {
-                currentAudio = audio;
-                if (triggerEl) triggerEl.classList.add('playing');
-            }).catch(() => {
-                showToast('Sound failed — try clicking again');
-            });
-        }, 100);
-    });
+    if (triggerEl) {
+        triggerEl.classList.add('playing');
+        // Flash the parent card too
+        const card = triggerEl.closest('.sound-card');
+        if (card) { card.classList.add('flash'); setTimeout(() => card.classList.remove('flash'), 300); }
+    }
 
-    audio.addEventListener('ended', () => {
-        currentAudio = null;
+    source.onended = () => {
+        currentSource = null;
         document.querySelectorAll('.playing').forEach(el => el.classList.remove('playing'));
-    });
+    };
 }
 
 function showToast(msg) {
@@ -316,6 +544,10 @@ function showToast(msg) {
     t.classList.add('show');
     setTimeout(() => t.classList.remove('show'), 2500);
 }
+
+// Init audio on first click anywhere
+document.addEventListener('click', () => { if (!audioCtx) initAudio(); }, { once: true });
+document.addEventListener('touchstart', () => { if (!audioCtx) initAudio(); }, { once: true });
 
 // ─── SOUND GRID ───
 const GRID_DATA = [
@@ -337,13 +569,8 @@ const grid = document.getElementById('soundGrid');
 GRID_DATA.forEach(item => {
     const card = document.createElement('div');
     card.className = 'sound-card';
-    card.innerHTML = `
-        <span class="sound-cmd">${item.cmd}</span>
-        <span class="sound-name">${item.sound} <span class="play-btn">▶</span></span>
-    `;
-    card.addEventListener('click', () => {
-        playSound(item.id, card.querySelector('.play-btn'));
-    });
+    card.innerHTML = `<span class="sound-cmd">${item.cmd}</span><span class="sound-name">${item.sound} <span class="play-btn">▶</span></span>`;
+    card.addEventListener('click', () => playSound(item.id, card.querySelector('.play-btn')));
     grid.appendChild(card);
 });
 
@@ -352,94 +579,43 @@ const configContainer = document.getElementById('configRows');
 COMMANDS.forEach(item => {
     const row = document.createElement('div');
     row.className = 'config-row';
-
-    const opts = SOUNDS.map(s =>
-        '<option value="' + s.id + '"' + (s.id === item.default ? ' selected' : '') + '>' + s.name + '</option>'
-    ).join('');
-
-    row.innerHTML = `
-        <span class="config-cmd">${item.cmd}</span>
-        <div class="config-right">
-            <select class="config-select" data-key="${item.key}">
-                <option value="">None</option>
-                ${opts}
-            </select>
-            <div class="config-play">▶</div>
-        </div>
-    `;
-
-    // Wire up the play button to read from the select
+    const opts = SOUNDS.map(s => '<option value="' + s.id + '"' + (s.id === item.default ? ' selected' : '') + '>' + s.name + '</option>').join('');
+    row.innerHTML = `<span class="config-cmd">${item.cmd}</span><div class="config-right"><select class="config-select" data-key="${item.key}"><option value="">None</option>${opts}</select><div class="config-play">▶</div></div>`;
     row.querySelector('.config-play').addEventListener('click', function(e) {
         e.stopPropagation();
         const val = row.querySelector('.config-select').value;
-        if (val) {
-            playSound(val, this);
-        } else {
-            showToast('Pick a sound first');
-        }
+        if (val) playSound(val, this);
+        else showToast('Pick a sound first');
     });
-
     configContainer.appendChild(row);
 });
 
 // ─── GENERATE CONFIG ───
 function generateConfig() {
     const selects = document.querySelectorAll('.config-select');
-    const cmds = [];
-    let errSound = 'fahh.mp3';
-
+    const cmds = []; let errSound = 'fahh.mp3';
     selects.forEach(sel => {
-        const key = sel.dataset.key;
-        const sid = sel.value;
+        const key = sel.dataset.key, sid = sel.value;
         if (!sid) return;
         const s = SOUNDS.find(x => x.id === sid);
-        if (key === '_error' || key === '_not_found') {
-            errSound = s.file;
-        } else {
-            cmds.push({ key, file: s.file });
-        }
+        if (key === '_error' || key === '_not_found') errSound = s.file;
+        else cmds.push({ key, file: s.file });
     });
-
     const pad = k => k.padEnd(14);
-    const config = `#!/usr/bin/env zsh
-# meme-terminal config
-# Replace the MEME_CMD_SOUNDS and MEME_DEFAULT_SOUNDS blocks
-# in ~/meme-terminal/meme.zsh with this:
-
-MEME_CMD_SOUNDS=(
-${cmds.map(c => '    ' + pad(c.key) + '"' + c.file + '"').join('\n')}
-)
-
-MEME_DEFAULT_SOUNDS=(
-    error   "${errSound}"
-)`;
-
+    const config = `#!/usr/bin/env zsh\n# meme-terminal config\n# Replace MEME_CMD_SOUNDS and MEME_DEFAULT_SOUNDS in ~/meme-terminal/meme.zsh\n\nMEME_CMD_SOUNDS=(\n${cmds.map(c => '    ' + pad(c.key) + '"' + c.file + '"').join('\n')}\n)\n\nMEME_DEFAULT_SOUNDS=(\n    error   "${errSound}"\n)`;
     document.getElementById('configOutput').textContent = config;
     document.getElementById('configModal').classList.add('active');
 }
-
 function closeModal() { document.getElementById('configModal').classList.remove('active'); }
-
-function copyConfig() {
-    navigator.clipboard.writeText(document.getElementById('configOutput').textContent)
-        .then(() => showToast('Copied!'));
-}
-
+function copyConfig() { navigator.clipboard.writeText(document.getElementById('configOutput').textContent).then(() => showToast('Copied!')); }
 function downloadConfig() {
     const blob = new Blob([document.getElementById('configOutput').textContent], { type: 'text/plain' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'meme-config.zsh';
-    a.click();
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'meme-config.zsh'; a.click();
     showToast('Downloaded!');
 }
-
 function copyText(btn) {
     const code = btn.parentElement.textContent.replace('copy', '').replace('copied!', '').trim();
-    navigator.clipboard.writeText(code).then(() => {
-        btn.textContent = 'copied!';
-        setTimeout(() => btn.textContent = 'copy', 2000);
-    });
+    navigator.clipboard.writeText(code).then(() => { btn.textContent = 'copied!'; setTimeout(() => btn.textContent = 'copy', 2000); });
 }
 
 // ─── TERMINAL DEMO ───
@@ -447,7 +623,7 @@ const DEMO = [
     { type: 'cmd', text: 'git push origin main', delay: 0 },
     { type: 'sound', text: '🔊 dun dun dunnnn', cls: 'orange', delay: 600 },
     { type: 'output', text: 'To github.com:user/project.git', delay: 1200 },
-    { type: 'output', text: '   abc123..def456  main → main', delay: 1500 },
+    { type: 'output', text: '   abc123..def456  main -> main', delay: 1500 },
     { type: 'spacer', delay: 2000 },
     { type: 'cmd', text: 'kjsdflkjsdf', delay: 2400 },
     { type: 'error', text: 'zsh: command not found: kjsdflkjsdf', delay: 2800 },
@@ -455,18 +631,15 @@ const DEMO = [
     { type: 'spacer', delay: 3600 },
     { type: 'cmd', text: 'npm run dev', delay: 4000 },
     { type: 'sound', text: '🔊 ack!', cls: 'orange', delay: 4400 },
-    { type: 'output', text: 'ready — started server on 0.0.0.0:3000', delay: 4800 },
+    { type: 'output', text: 'ready - started server on 0.0.0.0:3000', delay: 4800 },
 ];
-
 function runDemo() {
-    const el = document.getElementById('terminalDemo');
-    el.innerHTML = '';
+    const el = document.getElementById('terminalDemo'); el.innerHTML = '';
     DEMO.forEach(line => {
         setTimeout(() => {
             if (line.type === 'spacer') { el.appendChild(document.createElement('br')); return; }
-            const d = document.createElement('div');
-            d.className = 'terminal-line';
-            if (line.type === 'cmd') d.innerHTML = '<span class="prompt">→</span> <span class="cmd">' + line.text + '</span>';
+            const d = document.createElement('div'); d.className = 'terminal-line';
+            if (line.type === 'cmd') d.innerHTML = '<span class="prompt">&gt;</span> <span class="cmd">' + line.text + '</span>';
             else if (line.type === 'sound') d.innerHTML = '<span class="sound-tag ' + line.cls + '">' + line.text + '</span>';
             else if (line.type === 'error') d.innerHTML = '<span class="error">' + line.text + '</span>';
             else d.innerHTML = '<span class="output">' + line.text + '</span>';
@@ -475,21 +648,11 @@ function runDemo() {
     });
     setTimeout(runDemo, 7000);
 }
-
-// ─── INIT ───
-const obs = new IntersectionObserver(entries => {
-    entries.forEach(e => { if (e.isIntersecting) { runDemo(); obs.unobserve(e.target); } });
-}, { threshold: 0.5 });
+const obs = new IntersectionObserver(entries => { entries.forEach(e => { if (e.isIntersecting) { runDemo(); obs.unobserve(e.target); } }); }, { threshold: 0.5 });
 obs.observe(document.querySelector('.terminal'));
 
-// Preload all sounds
-SOUNDS.forEach(s => { const a = new Audio(); a.preload = "auto"; a.src = "sounds/" + s.file; });
-
-if (REPO_URL) {
-    document.getElementById('github-btn').href = REPO_URL;
-    document.getElementById('github-footer').href = REPO_URL;
-}
-
+// GitHub links
+if (REPO_URL) { document.getElementById('github-btn').href = REPO_URL; document.getElementById('github-footer').href = REPO_URL; }
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 document.getElementById('configModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
 </script>
